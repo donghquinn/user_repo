@@ -16,11 +16,15 @@ services:
     - proxy
 
   app:
+   depends_on:
+     - db
    build:
     context: .
     dockerfile: Dockerfile
    container_name: user_service
    restart: unless-stopped
+   env_file:
+     - .env
    expose:
      - 6308
    networks:

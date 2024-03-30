@@ -18,17 +18,15 @@ export class MySqlInstance {
     return this.instance;
   }
 
-      public async start() {
+      public async start(): Promise<void> {
     try {
-      const result = await this.client.connect();
+     await this.client.getConnection();
 
-        console.log( "Connect Success" );
-        
-      return result;
+    console.log( "Connect Success" );
     } catch (error) {
       console.log('Connect Error: %o', { error });
 
-        throw new Error();
+        throw new Error("Connection Error");
     }
   }
 
@@ -40,7 +38,7 @@ export class MySqlInstance {
     } catch (error) {
       console.log('Query Error: %o', { error });
 
-        throw new Error();
+        throw new Error("Query Error");
     }
   }
     
@@ -54,7 +52,7 @@ public async stop() {
     } catch (error) {
       console.log('Disconnect Error: %o', { error });
 
-        throw new Error();
+        throw new Error("Disconnection Error");
     }
   }
 }

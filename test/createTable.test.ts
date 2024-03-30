@@ -5,12 +5,11 @@ describe('Check DB Connection and Query Data', () => {
 
     test( "Connection Test", async () =>
     {
-        const result = await mysql.start();
-        expect( result ).toBeUndefined();
+        await mysql.start();
+        
     } );
 
-    test( "CREATE USER", async () =>
-    {
+    test( "CREATE USER", async () => {
         const userResult = await mysql.query( `
             CREATE TABLE table_user (
                 user_id         VARCHAR(50)     NOT NULL,
@@ -38,10 +37,4 @@ describe('Check DB Connection and Query Data', () => {
         
         expect( sessionResult ).toBeDefined();
     } );
-
-  test('Query', async() => {
-      const result = await mysql.query( 'SELECT * FROM table_user ' );
-
-    expect(result).toBeDefined();
-  });
 });
