@@ -1,0 +1,34 @@
+import { MySqlInstance } from '@libraries/Database';
+
+describe('Check DB Connection and Query Data', () => {
+  const mysql = MySqlInstance.getInstance();
+
+    test( "Connection Test", async () =>
+    {
+        const result = await mysql.start();
+        expect( result ).toBeUndefined();
+    } );
+
+    test( "INSERT", async () =>
+    {
+        const result = await mysql.query( `
+        CREATE TABLE table_user (
+            user_id         VARCHAR(50)     NOT NULL,
+            user_name       VARCHAR(50)     NULL,
+            user_email      VARCHAR(50)     NOT NULL,
+            user_password   VARCHAR(50)     NOT NULL,
+            user_status     VARCHAR(10)     NOT NULL,
+
+            PRIMARY KEY user_id
+        );
+`);
+        
+        expect( result ).toBeDefined();
+    } );
+
+  test('Query', async() => {
+      const result = await mysql.query( 'SELECT * FROM table_user ' );
+
+    expect(result).toBeDefined();
+  });
+});

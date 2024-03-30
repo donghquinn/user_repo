@@ -1,0 +1,10 @@
+---
+version: "3.7"
+services:
+  db:
+   image: mariadb:11.4.1-rc-jammy
+   restart: always
+   ports:
+    - 3306:3306
+   env_file:
+    - .db.env
