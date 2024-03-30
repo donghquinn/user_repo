@@ -1,35 +1,36 @@
-const sql = require('mysql');
+import sql from 'mysql';
 
-exports.parseObject = (bigObject, targetArray, addObj) => {
-    let retObject = {};
-    let position = 0;
+// exports.parseObject = (bigObject, targetArray, addObj) => {
+//     let retObject = {};
+//     let position = 0;
 
-    for (let i = 0; i < targetArray.length; i++) {
-        retObject[targetArray[i]] = bigObject[targetArray[i]];
+//     for (let i = 0; i < targetArray.length; i++) {
+//         retObject[targetArray[i]] = bigObject[targetArray[i]];
 
-        let flag = targetArray[i];
-        let cnt = 0;
-        while (flag.search('_') > 0) {
-            position = flag.search('_');
-            if (position > 0 && retObject[targetArray[i]] === undefined) {
-                retObject[targetArray[i]] = bigObject[flag.substr(0, position) + flag[position + 1].toUpperCase() + flag.substr(position + 2)];
-                flag = flag.substr(0, position) + flag[position + 1].toUpperCase() + flag.substr(position + 2);
+//         let flag = targetArray[i];
+//         let cnt = 0;
+//         while (flag.search('_') > 0) {
+//             position = flag.search('_');
+//             if (position > 0 && retObject[targetArray[i]] === undefined) {
+//                 retObject[targetArray[i]] = bigObject[flag.substr(0, position) +
+//  flag[ position + 1 ].toUpperCase() + flag.substr( position + 2 )];
+//                 flag = flag.substr(0, position) + flag[position + 1].toUpperCase() + flag.substr(position + 2);
 
-            }
+//             }
 
-            if (++cnt > 10)
-                break;
-        }
-    }
+//             if (++cnt > 10)
+//                 break;
+//         }
+//     }
 
-    if (addObj !== undefined)
-        for (let k in Object.keys(addObj))
-            retObject[k] = addObj[k];
+//     if (addObj !== undefined)
+//         for (let k in Object.keys(addObj))
+//             retObject[k] = addObj[k];
 
-    return retObject;
-};
+//     return retObject;
+// };
 
-exports.buildInsert = (tblName, insertObj, option) => {
+exports.buildInsert = (tblName: string, insertObj: Record<string, string>, option: string) => {
 
     if (typeof (option) != 'string')
         option = '';
@@ -59,7 +60,7 @@ exports.buildInsert = (tblName, insertObj, option) => {
     return query;
 };
 
-exports.buildInsertMultiple = (tblName, insertArr) => {
+exports.buildInsertMultiple = (tblName: string, insertArr: Array<any>) => {
 
     if(insertArr.length == 0)
         return " SELECT 1";
@@ -104,7 +105,7 @@ exports.buildInsertMultiple = (tblName, insertArr) => {
     return query;
 };
 
-exports.buildUpdate = (tblName, updateObj, whereObj) => {
+exports.buildUpdate = (tblName: string, updateObj: Record<string, string>, whereObj: Record<string, string>) => {
 
     let query =
         "   UPDATE " + tblName +
@@ -150,7 +151,7 @@ exports.buildUpdate = (tblName, updateObj, whereObj) => {
     return query;
 };
 
-exports.buildDelete = (tblName, whereObj) => {
+exports.buildDelete = (tblName: string, whereObj: Record<string, string>) => {
 
     let query =
         "   DELETE FROM " + tblName +
@@ -174,7 +175,7 @@ for (let k in whereObj) {
     return query;
 };
 
-exports.buildSelect = (tblName, whereObj, addTxt, selectColumnTxt) => {
+exports.buildSelect = (tblName: string, whereObj: Record<string, string>, addTxt: string, selectColumnTxt: string) => {
 
     let query =
         "   SELECT " + (selectColumnTxt ? selectColumnTxt : ' * ') +
@@ -206,12 +207,10 @@ exports.buildSelect = (tblName, whereObj, addTxt, selectColumnTxt) => {
     return query;
 };
 
-exports.buildCount = (tblName, whereObj, addQuery) => {
+exports.buildCount = (tblName: string, whereObj: Record<string, string>, addQuery: string) => {
 
     let query =
-        "   SELECT COUNT(*) as count " +
-        "   FROM " + tblName +
-        "   WHERE 1 = 1 ";
+        `   SELECT COUNT(*) as count  FROM  + ${tblName} WHERE 1 = 1 `;
 
     for (let k in whereObj) {
         try {
@@ -237,17 +236,22 @@ exports.buildCount = (tblName, whereObj, addQuery) => {
     return query;
 };
 
-exports.appendLeftJoin = (input, tblName, mapperList, appendColumnList, clearOriginSelect) => {
+export const appendLeftJoin = (
+    input: string,
+    tblName: string,
+    mapperList: Array<string>,
+    appendColumnList: string,
+    clearOriginSelect: boolean
+) =>
+{
     let query = "   SELECT i.* ";
 
     if(typeof appendColumnList === 'object') {
         for (let item of appendColumnList)
-            if (item[0] === "\\")
-                query += ", " + item.slice(1, item.length);
-            else
-                query += ", j." + item;
+            if (item[0] === "\\") query += `, ${item.slice(1, item.length)}`;
+            else query += `, j.${item}`;
     } else {
-        query += ", " + appendColumnList;
+        query += `, + ${appendColumnList};`
 
     }
 
@@ -255,94 +259,98 @@ exports.appendLeftJoin = (input, tblName, mapperList, appendColumnList, clearOri
         query = query.replace("i.* ,", "");
 
     query +=
-        "   FROM ( " + input + " ) i " +
-        "   LEFT JOIN " + tblName + " j ON ";
+        `   FROM ( " + ${input} + " ) i  LEFT JOIN  + ${tblName} +  j ON `;
 
     for (let item of mapperList)
         try {
-            if (item[0] === '\\')
-                query += item.slice(1, item.length) + " AND ";
-            else
-                query += " j." + item + " = i." + item + " AND ";
+            if ( item[ 0 ] === '\\' ) query += `${ item.slice( 1, item.length ) } AND`;
+            else query += `j.${item} = i.${item} AND`; 
 
         } catch (err) {
-            query += " j." + item + " = i." + item + " AND ";
-
+            query += `j.${item} = i.${item} AND`;
         }
 
     return query.slice(0, query.length - 4);
 };
 
-exports.appendInnerJoin = (input, tblName, mapperList, appendColumnList, clearOriginSelect) => {
+export const appendInnerJoin = (
+    input: string,
+    tblName: string,
+    mapperList: Array<string>,
+    appendColumnList: string,
+    clearOriginSelect: boolean
+) =>
+{
     let query = "   SELECT i.* ";
 
     if(typeof appendColumnList === 'object') {
-        for (let item of appendColumnList)
-            query += ", j." + item;
+        for ( let item of appendColumnList )
+            query += `, j.${item}`;
     } else {
-        query += ", " + appendColumnList;
+        query += `, ${appendColumnList}`;
 
     }
 
     if (clearOriginSelect)
         query = query.replace("i.* ,", "");
 
-    query +=
-        "   FROM ( " + input + " ) i " +
-        "   LEFT JOIN " + tblName + " j ON ";
+    query += `FROM ( "${ input }" ) i FROM (" ${ input } ") i LEFT JOIN ${ tblName } j ON`;
 
     for (let item of mapperList)
         try {
-            if (item[0] === '\\')
-                query += item.slice(1, item.length) + " AND ";
+            if ( item[ 0 ] === '\\' )
+                query += `${ item.slice( 1, item.length ) } AND`;
             else
-                query += " j." + item + " = i." + item + " AND ";
+                query += `j.${item} = i.${item} AND`;
 
         } catch (err) {
-            query += " j." + item + " = i." + item + " AND ";
+            query += `j.${item} = i.${item} AND`;
 }
 
     return query.slice(0, query.length - 4);
 };
 
-exports.appendJoinTxt = (input, tblName, joinType, appendTxt, appendColumnList, clearOriginSelect) => {
+export const appendJoinTxt = (
+    input: string,
+    tblName: string,
+    joinType: string,
+    appendTxt: string,
+    appendColumnList: string,
+    clearOriginSelect: boolean,
+) =>
+{
     let query = "   SELECT i.* ";
 
     if(typeof appendColumnList === 'object') {
-        for (let item of appendColumnList)
-            query += ", j." + item;
+        for ( let item of appendColumnList )
+            query += `, j.${item}`;
     } else {
-        query += ", " + appendColumnList;
+        query += `, ${appendColumnList}`;
 
     }
 
     if (clearOriginSelect)
         query = query.replace("i.* ,", "");
 
-    query +=
-        "   FROM ( " + input + " ) i " +
-        joinType + " JOIN " + tblName + " j ON " + appendTxt;
+    query += `   FROM ( " ${ input } " ) i ${ joinType } JOIN ${ tblName } j   ON ${ appendTxt }`;
 
     return query;
 };
 
-exports.appendCount = (input) => {
-    let query =
-        "   SELECT COUNT(*) as count " +
-        "   FROM ( " + input + " ) i ";
+export const appendCount = (input: string) => {
+    const query = `SELECT COUNT(*) as count FROM ( " ${ input } " ) i`;
 
     return query;
 };
 
-exports.txtPageLimit = (page, itemCountPerPage) => {
-    return " LIMIT " + (page - 1) * itemCountPerPage + ", " + itemCountPerPage;
-};
+export const txtPageLimit = ( page: number, itemCountPerPage: number ) =>
+    ` LIMIT ${ ( page - 1 ) * itemCountPerPage }, ${ itemCountPerPage }`;
 
-exports.txtLikeEscape = (columnList, keyword) => {
+export const txtLikeEscape = (columnList: Array<string>, keyword: string) => {
     let txt = "";
 
-    for(let item of columnList)
-        txt += item + " LIKE " + sql.escape('%' + keyword + '%') + " OR ";
+    for ( let item of columnList )
+        txt += `${item} LIKE ${sql.escape("%" + keyword + "%")} OR`;
 
     return txt.slice(0, txt.length - 4);
 };
