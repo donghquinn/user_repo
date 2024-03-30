@@ -31,7 +31,6 @@ WORKDIR /home/node
 RUN npm install -g pnpm
 
 COPY package-deploy.json /home/node/package.json
-COPY --from=build /usr/src/app/prisma /home/node/prisma
 COPY --from=build /usr/src/app/node_modules /home/node/node_modules
 COPY --from=build /usr/src/app/dist /home/node/src
 COPY tsconfig.json /home/node/tsconfig.json
