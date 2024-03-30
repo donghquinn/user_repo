@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" pnpm jest -c jest.config.ts --runInBand"
+    "test": "NODE_OPTIONS=\"--experimental-vm-modules --no-warnings\" pnpm jest -c jest.config.ts --runInBand --detectOpenHandles"
   },
   "author": "",
   "license": "ISC",
