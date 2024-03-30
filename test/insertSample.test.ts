@@ -1,47 +1,19 @@
 import { MySqlInstance } from '@libraries/Database';
+import { randomUUID } from 'crypto';
 
-describe('Check DB Connection and Query Data', () => {
-  const mysql = MySqlInstance.getInstance();
+describe( "Insert DataBase", () =>
+{
+    const mysql = MySqlInstance.getInstance();
+    
+    const userId = randomUUID();
 
-    test( "Connection Test", async () =>
+    test( "Insert User Data", async () =>
     {
-        const result = await mysql.start();
-        expect( result ).toBeUndefined();
-    } );
-
-    test( "CREATE USER", async () =>
-    {
-        const userResult = await mysql.query( `
-            CREATE TABLE table_user (
-                user_id         VARCHAR(50)     NOT NULL,
-                user_name       VARCHAR(50)     NULL,
-                user_email      VARCHAR(50)     NOT NULL,
-                user_password   VARCHAR(50)     NOT NULL,
-                user_status     VARCHAR(10)     NOT NULL,
-
-                PRIMARY KEY user_id
-            );
-        `);
-        
-        expect( userResult ).toBeDefined();
-    } );
-
-    test( "CREATE SESSION", async () => {
-        const sessionResult = await mysql.query( `
-            CREATE TABLE table_user_session (
-                session_id      VARCHAR(50)     NOT NULL,
-                user_id         VARCHAR(50)     NOT NULL        REFERENCES  table_user(user_id),
-
-                PRIMARY KEY session_id
-            );
-        `);
-        
-        expect( sessionResult ).toBeDefined();
-    } );
-
-  test('Query', async() => {
-      const result = await mysql.query( 'SELECT * FROM table_user ' );
-
-    expect(result).toBeDefined();
-  });
-});
+        mysql.query( `
+            INSERT INTO table_user (user_id, user_email, user_name, user_password, user_status)
+            VALUES
+            (${userId}, test@example.com, test, 1234, 10 )
+            ;
+        `)
+    })
+})
