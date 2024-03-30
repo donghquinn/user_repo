@@ -12,3 +12,19 @@ services:
    command:
     - --character-set-server=utf8mb4
     - --collation-server=utf8mb4_unicode_ci
+   networks:
+    - proxy
+
+  app:
+   build:
+    context: .
+    dockerfile: Dockerfile
+   container_name: user_service
+   expose:
+     - 6308
+   networks:
+     - proxy
+
+networks:
+  proxy:
+   external: true
