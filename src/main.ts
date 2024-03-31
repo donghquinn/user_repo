@@ -31,5 +31,5 @@ app.use('/', loginRouter);
 app.use('/', signupRouter);
 
 app.listen(port, () => {
-  console.log('Listening On 6308');
+  console.log(`Listening On ${port}`);
 });
