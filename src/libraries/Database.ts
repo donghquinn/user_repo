@@ -1,5 +1,6 @@
 import { dbConnectConfig } from 'configs/ServerConfig';
-import { createPool, FieldPacket, Pool, QueryResult } from 'mysql2/promise';
+import { createPool, Pool } from 'mysql2/promise';
+import { DbQueryResult } from 'types/database.type';
 
 export class MySqlInstance {
   private static instance: MySqlInstance;
@@ -18,43 +19,43 @@ export class MySqlInstance {
     return this.instance;
   }
 
-    public async start(): Promise<string> {
+  public async start(): Promise<string> {
     try {
-        await this.client.getConnection();
+      await this.client.getConnection();
 
-        console.log( "Connect Success" );
+      console.log('Connect Success');
 
-        return "success";
+      return 'success';
     } catch (error) {
       console.log('Connect Error: %o', { error });
 
-        throw new Error("Connection Error");
+      throw new Error('Connection Error');
     }
   }
 
-  public async query(sql: string): Promise<[QueryResult, FieldPacket[]]> {
+  public async query<T>(sql: string): Promise<DbQueryResult<T>> {
     try {
-      const result = await this.client.query(sql);
+      const [result] = await this.client.query<DbQueryResult<T>>(sql);
 
       return result;
     } catch (error) {
       console.log('Query Error: %o', { error });
 
-        throw new Error("Query Error");
+      throw new Error('Query Error');
     }
   }
-    
-public async stop() {
+
+  public async stop() {
     try {
       const result = await this.client.end();
 
-        console.log( "Disconnect Success" );
-        
+      console.log('Disconnect Success');
+
       return result;
     } catch (error) {
       console.log('Disconnect Error: %o', { error });
 
-        throw new Error("Disconnection Error");
+      throw new Error('Disconnection Error');
     }
   }
 }
