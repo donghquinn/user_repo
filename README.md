@@ -20,3 +20,13 @@
 
 1. login: 로그인 라우트
 2. signup: 회원가입 라우트
+
+### Example Env
+
+```file
+    MARIADB_HOST=
+    MARIADB_USER=
+    MARIADB_PASSWORD=
+    MARIADB_PORT=
+    MARIADB_DATABASE=
+```
