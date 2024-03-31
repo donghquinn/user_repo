@@ -1,5 +1,5 @@
 import { dbConnectConfig } from 'configs/ServerConfig';
-import { createPool, FieldPacket, Pool, QueryResult, escape } from 'mysql2/promise';
+import { createPool, FieldPacket, Pool, QueryResult } from 'mysql2/promise';
 
 export class MySqlInstance {
   private static instance: MySqlInstance;
@@ -34,7 +34,7 @@ export class MySqlInstance {
 
   public async query(sql: string): Promise<[QueryResult, FieldPacket[]]> {
     try {
-      const result = await this.client.query(escape(sql));
+      const result = await this.client.query(sql);
 
       return result;
     } catch (error) {
