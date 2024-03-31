@@ -30,8 +30,6 @@ export const LoginProcess = async (req: Request, res: Response) => {
 
     const result = await client.query<Array<UserInfo>>(queryString);
 
-    console.log('[LOGIN] Query Result: %o', { result });
-
     if (!result) return res.status(400).json({ message: 'No User Found' });
 
     const sessionId = randomUUID();
