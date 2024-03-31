@@ -8,9 +8,7 @@ const router = express.Router();
 const LoginRoute = async ( req: express.Request, res: express.Response ) =>
 {
     const { email, password } = req.body as {email: string, password: string};
-    try
-    {
-        
+    try {
         const client = MySqlInstance.getInstance();
 
         // const userId = randomUUID();
