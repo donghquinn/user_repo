@@ -1,5 +1,6 @@
 import { dbConnectConfig } from 'configs/ServerConfig';
 import { createPool, FieldPacket, Pool, QueryResult } from 'mysql2/promise';
+import { DbQueryResult } from 'types/database.type';
 
 export class MySqlInstance {
   private static instance: MySqlInstance;
@@ -32,9 +33,9 @@ export class MySqlInstance {
     }
   }
 
-  public async query(sql: string): Promise<[QueryResult, FieldPacket[]]> {
+  public async query<T>(sql: string): Promise<DbQueryResult<T>> {
     try {
-      const result = await this.client.query(sql);
+      const [result] = await this.client.query<DbQueryResult<T>>(sql);
 
       return result;
     } catch (error) {

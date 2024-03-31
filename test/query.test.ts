@@ -2,6 +2,7 @@
 import { MySqlInstance } from "@libraries/Database";
 import { createHash, randomUUID } from "crypto";
 import { escape } from 'mysql2';
+import { UserInfo } from "types/user.type";
 
 describe('Check DB Connection and Query Data', () => {
   const mysql = MySqlInstance.getInstance();
@@ -54,7 +55,13 @@ describe( "Insert DataBase", () => {
     await mysql.query( `
         INSERT INTO user_table (user_id, user_email, user_name, user_password)
         VALUES
-        (${ escape(userId) }, ${ escape( encodedEmail ) }, ${ escape( encodedName ) }, ${ escape( encodedPassword ) })`
+        (${ escape( userId ) }, ${ escape( encodedEmail ) }, ${ escape( encodedName ) }, ${ escape( encodedPassword ) })
+        ON DUPLICATE KEY UPDATE
+        user_id = VALUES(user_id),
+        user_email = VALUES(user_email),
+        user_name = VALUES(user_name),
+        user_password = VALUES(user_password)
+        `
     );
     
     const result = await mysql.query( 'SELECT COUNT(1) FROM user_table ' );
@@ -65,11 +72,12 @@ describe( "Insert DataBase", () => {
   } );
 
   test( "Test Select User Info", async () => {
-    const [result] = await mysql.query( `
+    const result = await mysql.query<Array<UserInfo>>( `
             SELECT * FROM user_table WHERE user_email = ${ escape( encodedEmail ) } AND user_password = ${ escape(encodedPassword) }
         `);
 
-    console.log( "User Info Query Result: %o", { result } );
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    console.log( "User Info Query Result: %o", { result, userId: result[0].user_id } );
 
       expect( result ).toBeDefined();
   } );

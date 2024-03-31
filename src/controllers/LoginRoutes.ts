@@ -2,11 +2,11 @@ import { MySqlInstance } from "@libraries/Database";
 import express from "express";
 import { escape } from "mysql2";
 import { createHash, randomUUID } from "node:crypto";
+import { UserInfo } from "types/user.type";
 
 const router = express.Router();
 
-const LoginRoute = async ( req: express.Request, res: express.Response ) =>
-{
+const LoginRoute = async ( req: express.Request, res: express.Response ) => {
     const { email, password } = req.body as {email: string, password: string};
     try {
         const client = MySqlInstance.getInstance();
@@ -17,13 +17,13 @@ const LoginRoute = async ( req: express.Request, res: express.Response ) =>
         const encodedPassword = createHash( "sha256" ).update( password ).digest( "base64" );
 
         const queryString =
-            `SELECT * FROM user_table 
+            `SELECT user_id, user_email FROM user_table 
             WHERE
                 user_email = ${ escape( encodedEmail ) } AND 
                 user_password = ${ escape( encodedPassword ) }
             `;
 
-        const [ result ] = await client.query( queryString );
+        const result= await client.query<UserInfo>( queryString );
         
         console.log( "[LOGIN] Query Result: %o", { result } );
 
@@ -32,8 +32,9 @@ const LoginRoute = async ( req: express.Request, res: express.Response ) =>
         const sessionId = randomUUID();
 
         const inserResult = await client.query( `
-        INERT INTO user_table_session (session_id, user_id)
-        VALUES (${ escape( sessionId ) }, ${ escape( result.user_id ) })` );
+            INERT INTO user_table_session (session_id, user_id)
+            VALUES (${ escape( sessionId ) }, ${ escape( result.user_id ) })`
+        );
 
         if ( !inserResult ) return res.send( "User Data Session Insert Error" );
 
