@@ -18,11 +18,13 @@ export class MySqlInstance {
     return this.instance;
   }
 
-    public async start(): Promise<void> {
+    public async start(): Promise<string> {
     try {
         await this.client.getConnection();
 
         console.log( "Connect Success" );
+
+        return "success";
     } catch (error) {
       console.log('Connect Error: %o', { error });
 
