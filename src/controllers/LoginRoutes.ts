@@ -7,10 +7,10 @@ import { UserInfo } from 'types/user.type';
 export const LoginProcess = async (req: Request, res: Response) => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const request = JSON.parse(req.body) as { email: string; password: string };
-
+  console.log('Request: %o', { request });
   const { email, password } = request;
 
-  console.log('Email, Password: %o', { email, password });
+  console.log('Email, Password: %o', { request, email, password });
 
   try {
     const client = MySqlInstance.getInstance();
@@ -30,7 +30,7 @@ export const LoginProcess = async (req: Request, res: Response) => {
 
     console.log('[LOGIN] Query Result: %o', { result });
 
-    if (!result) return res.json({ message: 'No User Found' });
+    if (!result) return res.status(400).json({ message: 'No User Found' });
 
     const sessionId = randomUUID();
 
@@ -38,12 +38,12 @@ export const LoginProcess = async (req: Request, res: Response) => {
             INERT INTO user_table_session (session_id, user_id)
             VALUES (${escape(sessionId)}, ${escape(result.user_id)})`);
 
-    if (!inserResult) return res.json({ message: 'User Data Session Insert Error' });
+    if (!inserResult) return res.status(401).json({ message: 'User Data Session Insert Error' });
 
-    return res.json({ result });
+    return res.status(200).json({ result });
 
     // return result;
   } catch (err) {
-    return res.json({ err });
+    return res.status(500).json({ error: err });
   }
 };
