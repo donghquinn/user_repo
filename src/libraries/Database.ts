@@ -1,4 +1,4 @@
-import { dbConnectConfig } from 'configs/ServerConfig';
+import { dbConnectConfig } from '@configs/ServerConfig';
 import { createPool, Pool } from 'mysql2/promise';
 import { DbQueryResult } from 'types/database.type';
 

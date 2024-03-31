@@ -19,7 +19,9 @@
     "esModuleInterop": true,
     "baseUrl": "src",
     "paths": {
+      "@configs/*": ["configs/*"],
       "@dao/*": ["dao/*"],
+      "@routers/*":["routes/*"],
       "@libraries/*": ["libraries/*"],
       "@utils/*": ["utils/*"],
       "@validators/*": ["validators/*"],

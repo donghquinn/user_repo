@@ -1,10 +1,10 @@
 import { MySqlInstance } from '@libraries/Database';
+import loginRouter from '@routers/login.route';
+import signupRouter from '@routers/signup.route';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Request, Response, json, urlencoded } from 'express';
 import helmet from 'helmet';
-import cookieParser from 'cookie-parser';
-import loginRouter from 'routes/login.route';
-import signupRouter from 'routes/signup.route';
 
 const mysql = MySqlInstance.getInstance();
 
