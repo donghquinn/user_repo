@@ -1,10 +1,10 @@
 import { MySqlInstance } from '@libraries/Database';
-import express from 'express';
+import { Request, Response } from 'express';
 import { escape } from 'mysql2';
 import { createHash, randomUUID } from 'node:crypto';
 import { UserInfo } from 'types/user.type';
 
-export const LoginProcess = async (req: express.Request, res: express.Response) => {
+export const LoginProcess = async (req: Request, res: Response) => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   const request = JSON.parse(req.body) as { email: string; password: string };
 
