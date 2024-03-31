@@ -5,3 +5,15 @@ test
 
 assets
 *.sql
+
+example.env
+
+.prettierrc
+.prettierignore
+
+.eslintrc.json
+
+.gitignoress
+
+jest.config.ts
+*.md
