@@ -4,13 +4,17 @@ import { escape } from 'mysql2';
 import { createHash, randomUUID } from 'node:crypto';
 import { UserInfo } from 'types/user.type';
 
+interface RequestBody {
+  email: string;
+  password: string;
+}
+
 export const LoginProcess = async (req: Request, res: Response) => {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  const request = JSON.parse(req.body) as { email: string; password: string };
-  console.log('Request: %o', { request });
-  const { email, password } = request;
 
-  console.log('Email, Password: %o', { request, email, password });
+  const { email, password } = req.body as RequestBody;
+
+  console.log('Email, Password: %o', { email, password });
 
   try {
     const client = MySqlInstance.getInstance();
@@ -26,7 +30,7 @@ export const LoginProcess = async (req: Request, res: Response) => {
             user_password = ${escape(encodedPassword)}
         `;
 
-    const result = await client.query<UserInfo>(queryString);
+    const result = await client.query<Array<UserInfo>>(queryString);
 
     console.log('[LOGIN] Query Result: %o', { result });
 
@@ -35,8 +39,8 @@ export const LoginProcess = async (req: Request, res: Response) => {
     const sessionId = randomUUID();
 
     const inserResult = await client.query(`
-            INERT INTO user_table_session (session_id, user_id)
-            VALUES (${escape(sessionId)}, ${escape(result.user_id)})`);
+            INSERT INTO user_table_session (session_id, user_id)
+            VALUES (${escape(sessionId)}, ${escape(result[0].user_id)})`);
 
     if (!inserResult) return res.status(401).json({ message: 'User Data Session Insert Error' });
 

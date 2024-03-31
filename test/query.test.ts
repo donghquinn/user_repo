@@ -34,7 +34,9 @@ describe('Check DB Connection and Query Data', () => {
             CREATE TABLE IF NOT EXISTS user_table_session (
                 session_id      VARCHAR(150)     NOT NULL        PRIMARY KEY,
                 user_id         VARCHAR(150)     NOT NULL        REFERENCES  user_table(user_id),
-                reg_date        DATETIME         NOT NULL        DEFAULT CURRENT_TIMESTAMP
+                reg_date        DATETIME         NOT NULL        DEFAULT CURRENT_TIMESTAMP,
+                refresh_date    DATETIME         NULL,
+                expire_date     DATETIME         NULL
             )
         `);
 
@@ -61,7 +63,7 @@ describe('Insert DataBase', () => {
         user_email = VALUES(user_email),
         user_name = VALUES(user_name),
         user_password = VALUES(user_password)
-        `);
+    `);
 
     const result = await mysql.query('SELECT COUNT(1) FROM user_table ');
 
