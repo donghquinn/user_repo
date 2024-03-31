@@ -16,7 +16,9 @@ app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'success' });
 });
 
-app.set('port', 6308);
+const port = process.env.APP_PORT === undefined ? 3000 : Number(process.env.APP_PORT);
+
+app.set('port', port);
 
 app.use(cors());
 app.use(json());
@@ -28,6 +30,6 @@ app.use(cookieParser());
 app.use('/', loginRouter);
 app.use('/', signupRouter);
 
-app.listen(6308, () => {
-  console.log('Listening On 6308');
+app.listen(port, () => {
+  console.log(`Listening On ${port}`);
 });

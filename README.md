@@ -24,6 +24,8 @@
 ### Example Env
 
 ```file
+    APP_PORT=
+    
     MARIADB_HOST=
     MARIADB_USER=
     MARIADB_PASSWORD=
