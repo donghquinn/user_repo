@@ -14,7 +14,7 @@ describe('Check DB Connection and Query Data', () => {
 
     test( "CREATE USER TABLE", async () => {
         const userResult = await mysql.query( `
-            CREATE TABLE user_table IF NOT EXISTS (
+            CREATE TABLE IF NOT EXISTS user_table (
                 user_id         VARCHAR(150)     NOT NULL      PRIMARY KEY,
                 user_name       VARCHAR(150)     NULL,
                 user_email      VARCHAR(150)     NOT NULL      UNIQUE,
@@ -30,7 +30,7 @@ describe('Check DB Connection and Query Data', () => {
 
     test( "CREATE SESSION TABLE", async () => {
         const sessionResult = await mysql.query( `
-            CREATE TABLE user_table_session IF NOT EXISTS (
+            CREATE TABLE IF NOT EXISTS user_table_session (
                 session_id      VARCHAR(150)     NOT NULL        PRIMARY KEY,
                 user_id         VARCHAR(150)     NOT NULL        REFERENCES  user_table(user_id),
                 reg_date        DATETIME         NOT NULL        DEFAULT CURRENT_TIMESTAMP
@@ -66,7 +66,7 @@ describe( "Insert DataBase", () => {
 
   test( "Test Select User Info", async () => {
     const result = await mysql.query( `
-            SELECT user_name FROM user_table WHERE user_email = ${ escape( encodedEmail ) } AND user_password = ${ encodedPassword }
+            SELECT user_name FROM user_table WHERE user_email = ${ escape( encodedEmail ) } AND user_password = ${ escape(encodedPassword) }
         `);
 
     console.log( "User Info Query Result: %o", { result } );
