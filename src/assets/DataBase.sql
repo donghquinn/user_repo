@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS user_table (
 
 CREATE TABLE IF NOT EXISTS user_table_session (
     session_id      VARCHAR(150)     NOT NULL        PRIMARY KEY,
-    user_id         VARCHAR(150)     NOT NULL        REFERENCES  user_table(user_id),
+    user_id         VARCHAR(150)     NOT NULL        REFERENCES  user_table(user_id) ON DELETE CASCADE,
     reg_date        DATETIME         NOT NULL        DEFAULT CURRENT_TIMESTAMP,
     refresh_date    DATETIME         NULL,
     expire_date     DATETIME         NULL
