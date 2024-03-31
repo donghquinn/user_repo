@@ -19,7 +19,7 @@ export class MySqlInstance {
     return this.instance;
   }
 
-  public async start(): Promise<string> {
+  public async start(): Promise<void> {
     try {
       await this.client.getConnection();
 
@@ -46,7 +46,6 @@ export class MySqlInstance {
             expire_date     DATETIME         NULL
         )
       `);
-      return 'success';
     } catch (error) {
       console.log('Connect Error: %o', { error });
 
