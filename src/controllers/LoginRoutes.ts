@@ -10,8 +10,6 @@ interface RequestBody {
 }
 
 export const LoginProcess = async (req: Request, res: Response) => {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-
   const { email, password } = req.body as RequestBody;
 
   console.log('Email, Password: %o', { email, password });
@@ -39,12 +37,17 @@ export const LoginProcess = async (req: Request, res: Response) => {
     const sessionId = randomUUID();
 
     const inserResult = await client.query(`
-            INSERT INTO user_table_session (session_id, user_id)
-            VALUES (${escape(sessionId)}, ${escape(result[0].user_id)})`);
+        INSERT INTO user_table_session (session_id, user_id)
+        VALUES (${escape(sessionId)}, ${escape(result[0].user_id)})
+        ON DUPLICATE KEY UPDATE
+          session_id = VALUES(session_id),
+          user_id = VALUES(user_id)
+      `);
 
     if (!inserResult) return res.status(401).json({ message: 'User Data Session Insert Error' });
 
-    return res.status(200).json({ result });
+    res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 60 * 1000 * 10 });
+    return res.status(200).json({ sessionId });
 
     // return result;
   } catch (err) {

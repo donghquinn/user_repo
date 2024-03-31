@@ -2,6 +2,7 @@ import { MySqlInstance } from '@libraries/Database';
 import cors from 'cors';
 import express, { Request, Response, json, urlencoded } from 'express';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import loginRouter from 'routes/login.route';
 
 const mysql = MySqlInstance.getInstance();
@@ -20,15 +21,11 @@ app.use(cors());
 app.use(json());
 app.use(helmet());
 app.use(urlencoded({ extended: true }));
+app.use(cookieParser());
 // app.use(bodyParser());
 
 app.use('/', loginRouter);
 
-app.post('/api', (req: Request, res: Response) => {
-  // const body = JSON.parse(req.body) as RequestBody;
-  console.log('Bdoy: %o', req.body);
-  res.json({ message: 'success' });
-});
 app.listen(6308, () => {
   console.log('Listening On 6308');
 });
