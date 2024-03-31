@@ -31,14 +31,14 @@ describe('Check DB Connection and Query Data', () => {
 
   test('CREATE SESSION TABLE', async () => {
     const sessionResult = await mysql.query(`
-            CREATE TABLE IF NOT EXISTS user_table_session (
-                session_id      VARCHAR(150)     NOT NULL        PRIMARY KEY,
-                user_id         VARCHAR(150)     NOT NULL        REFERENCES  user_table(user_id),
-                reg_date        DATETIME         NOT NULL        DEFAULT CURRENT_TIMESTAMP,
-                refresh_date    DATETIME         NULL,
-                expire_date     DATETIME         NULL
-            )
-        `);
+        CREATE TABLE IF NOT EXISTS user_table_session (
+            session_id      VARCHAR(150)     NOT NULL        PRIMARY KEY,
+            user_id         VARCHAR(150)     NOT NULL        REFERENCES  user_table(user_id) ON DELETE CASCADE,
+            reg_date        DATETIME         NOT NULL        DEFAULT CURRENT_TIMESTAMP,
+            refresh_date    DATETIME         NULL,
+            expire_date     DATETIME         NULL
+        )
+      `);
 
     expect(sessionResult).toBeDefined();
   });

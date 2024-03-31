@@ -4,6 +4,7 @@ import express, { Request, Response, json, urlencoded } from 'express';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import loginRouter from 'routes/login.route';
+import signupRouter from 'routes/signup.route';
 
 const mysql = MySqlInstance.getInstance();
 
@@ -25,6 +26,7 @@ app.use(cookieParser());
 // app.use(bodyParser());
 
 app.use('/', loginRouter);
+app.use('/', signupRouter);
 
 app.listen(6308, () => {
   console.log('Listening On 6308');
