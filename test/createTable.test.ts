@@ -50,7 +50,7 @@ describe( "Insert DataBase", () => {
 
   const userId = randomUUID();
 
-  test( 'Query', async () => {
+  test( 'INSERT Sample Data', async () => {
     await mysql.query( `
         INSERT INTO user_table (user_id, user_email, user_name, user_password)
         VALUES
@@ -65,13 +65,12 @@ describe( "Insert DataBase", () => {
   } );
 
   test( "Test Select User Info", async () => {
-    const result = await mysql.query( `
-            SELECT user_name FROM user_table WHERE user_email = ${ escape( encodedEmail ) } AND user_password = ${ escape(encodedPassword) }
+    const [result] = await mysql.query( `
+            SELECT * FROM user_table WHERE user_email = ${ escape( encodedEmail ) } AND user_password = ${ escape(encodedPassword) }
         `);
 
     console.log( "User Info Query Result: %o", { result } );
 
-    expect( result ).toBeDefined();
+      expect( result ).toBeDefined();
   } );
-
 } );
