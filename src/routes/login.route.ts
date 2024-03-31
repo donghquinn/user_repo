@@ -1,8 +1,8 @@
-import { LoginRoute } from '@controllers/LoginRoutes';
+import { LoginProcess } from '@controllers/LoginRoutes';
 import express from 'express';
 
-const loginRoute = express.Router();
+const loginRouter = express.Router();
 
-loginRoute.post('/api/user/login', LoginRoute);
+loginRouter.post('/login', LoginProcess);
 
-export default loginRoute;
+export default loginRouter;

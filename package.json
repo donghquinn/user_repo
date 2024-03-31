@@ -9,7 +9,7 @@
     "build": "NODE_ENV=production tsc --project tsconfig.json --diagnostics  -p tsconfig.json",
     "start": "NODE_ENV=production node --max-old-space-size=700 -r ts-node/register --loader ts-paths-esm-loader --experimental-specifier-resolution=node --env-file=.env ./src/main.ts"
   },
-  "author": "",
+  "author": "donghquinn",
   "license": "ISC",
   "devDependencies": {
     "@jest/globals": "^29.7.0",

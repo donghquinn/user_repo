@@ -4,7 +4,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
-import router from 'routes';
+import loginRouter from 'routes/login.route';
 
 const mysql = MySqlInstance.getInstance();
 
@@ -16,11 +16,13 @@ app.get('/', (req, res) => {
   res.json({ message: 'success' });
 });
 
+app.set('port', 6308);
+
 app.use(cors);
 app.use(helmet);
 app.use(bodyParser);
 
-app.use('/', router);
+app.use('/', loginRouter);
 
 app.listen(6308, () => {
   console.log('Listening On 6308');
