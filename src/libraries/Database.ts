@@ -40,11 +40,25 @@ export class MySqlInstance {
       await this.client.query(`
         CREATE TABLE IF NOT EXISTS user_table_session (
             session_id      VARCHAR(150)     NOT NULL        PRIMARY KEY,
-            user_id         VARCHAR(150)     NOT NULL        REFERENCES  user_table(user_id) ON DELETE CASCADE,
-            reg_date        DATETIME         NOT NULL        DEFAULT CURRENT_TIMESTAMP,
+            user_id         VARCHAR(150)     NOT NULL        REFERENCES   user_table(user_id) ON DELETE CASCADE,
+            reg_date        DATETIME         NOT NULL        DEFAULT      CURRENT_TIMESTAMP,
             refresh_date    DATETIME         NULL,
             expire_date     DATETIME         NULL
         )
+      `);
+
+      await this.client.query(`
+        CREATE EVENT IF NOT EXISTS session_cleanup
+        ON SCHEDULE EVERY 10 MINUTE
+        DO
+        BEGIN
+            DECLARE cutoff_time DATETIME;
+            SET cutoff_time = NOW() - INTERVAL 10 MINUTE;
+
+            UPDATE user_table_session
+            SET expire_date = NOW()
+            WHERE expire_date IS NULL AND reg_date <= cutoff_time;
+        END;
       `);
     } catch (error) {
       console.log('Connect Error: %o', { error });
