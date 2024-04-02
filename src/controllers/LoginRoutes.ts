@@ -3,19 +3,15 @@ import { MySqlInstance } from '@libraries/Database';
 import { Request, Response } from 'express';
 import { escape } from 'mysql2';
 import { randomUUID } from 'node:crypto';
+import { RequestBody } from 'types/login.type';
 import { UserInfo } from 'types/user.type';
 
-interface RequestBody {
-  email: string;
-  password: string;
-}
+const client = MySqlInstance.getInstance();
 
 export const LoginProcess = async (req: Request, res: Response) => {
   const { email, password } = req.body as RequestBody;
 
   try {
-    const client = MySqlInstance.getInstance();
-
     const encodedEmail = encryptString(email);
     const encodedPassword = encryptPassword(password);
 
