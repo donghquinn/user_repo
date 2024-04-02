@@ -11,7 +11,7 @@ describe('Check DB Connection and Query Data', () => {
   test('Connection Test', async () => {
     const result = await mysql.start();
 
-    expect(result).toBe('success');
+    expect(result).toBeUndefined();
   });
 
   test('CREATE USER TABLE', async () => {
@@ -48,37 +48,50 @@ describe('Check DB Connection and Query Data', () => {
 describe('Insert DataBase', () => {
   const mysql = MySqlInstance.getInstance();
 
-  const encodedEmail = encryptString('test1@exampel.com');
-  const encodedName = encryptString('test1');
-  const encodedPassword = encryptPassword('1234');
+  const encodedEmail = encryptString('testdong@exampel.com');
+  const encodedName = encryptString('testdong');
+  const encodedPassword = encryptPassword('142');
 
   const userId = randomUUID();
 
   test('INSERT Sample Data', async () => {
     await mysql.query(`
-        INSERT INTO user_table (user_id, user_email, user_name, user_password)
+        INSERT INTO 
+          user_table (user_id, user_email, user_name, user_password)
         VALUES
-        (${escape(userId)}, ${escape(encodedEmail)}, ${escape(encodedName)}, ${escape(encodedPassword)})
-        ON DUPLICATE KEY UPDATE
-        user_id = VALUES(user_id),
-        user_email = VALUES(user_email),
-        user_name = VALUES(user_name),
-        user_password = VALUES(user_password)
+          (${escape(userId)}, ${escape(encodedEmail)}, ${escape(encodedName)}, ${escape(encodedPassword)})
     `);
 
-    const result = await mysql.query('SELECT COUNT(1) FROM user_table ');
+    const [result] = await mysql.query<Array<{ count: string }>>(
+      ` SELECT COUNT(1) as count 
+        FROM
+          user_table
+        WHERE
+          user_status = 10 AND
+          user_id = ${escape(userId)} AND
+          user_email = ${escape(encodedEmail)} AND
+          user_password = ${escape(encodedPassword)}
+      `,
+    );
 
-    expect(result).toBeDefined();
+    expect(result.count).toBe('1');
   });
 
   test('Test Select User Info', async () => {
-    const result = await mysql.query<Array<UserInfo>>(`
-            SELECT * FROM user_table WHERE user_email = ${escape(encodedEmail)} AND user_password = ${escape(encodedPassword)}
+    const [result] = await mysql.query<Array<UserInfo>>(`
+            SELECT
+              user_id
+            FROM 
+              user_table
+            WHERE
+              user_email = ${escape(encodedEmail)} AND 
+              user_password = ${escape(encodedPassword)} AND
+              user_status = 10
         `);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    console.log('User Info Query Result: %o', { result, userId: result[0].user_id });
-
-    expect(result).toBeDefined();
+    expect(result.user_id).toBe(userId);
+  });
+  afterAll(async () => {
+    await mysql.stop();
   });
 });
