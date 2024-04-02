@@ -12,6 +12,7 @@ export const dbConnectConfig = {
 };
 
 export const globalConfig = {
+  appPort: Number(process.env.APP_PORT!),
   aesSecretKey: process.env.AES_SECRET!,
   aesInitialVector: process.env.AES_IV!,
 };

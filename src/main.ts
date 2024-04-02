@@ -1,3 +1,4 @@
+import { globalConfig } from '@configs/ServerConfig';
 import { MySqlInstance } from '@libraries/Database';
 import loginRouter from '@routers/login.route';
 import signupRouter from '@routers/signup.route';
@@ -16,11 +17,11 @@ app.get('/', (req: Request, res: Response) => {
   res.json({ message: 'success' });
 });
 
-const port = process.env.APP_PORT === undefined ? 3000 : Number(process.env.APP_PORT);
+const port = globalConfig.appPort;
 
 app.set('port', port);
 
-app.use(cors());
+app.use(cors({ preflightContinue: false }));
 app.use(json());
 app.use(helmet());
 app.use(urlencoded({ extended: true }));
