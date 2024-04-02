@@ -13,8 +13,6 @@ interface RequestBody {
 export const LoginProcess = async (req: Request, res: Response) => {
   const { email, password } = req.body as RequestBody;
 
-  console.log('Email, Password: %o', { email, password });
-
   try {
     const client = MySqlInstance.getInstance();
 
