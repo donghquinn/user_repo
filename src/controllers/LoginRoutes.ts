@@ -1,7 +1,8 @@
+import { globalConfig } from '@configs/ServerConfig';
 import { MySqlInstance } from '@libraries/Database';
 import { Request, Response } from 'express';
 import { escape } from 'mysql2';
-import { createHash, randomUUID } from 'node:crypto';
+import { createCipheriv, createDecipheriv, createHash, randomUUID } from 'node:crypto';
 import { UserInfo } from 'types/user.type';
 
 interface RequestBody {
@@ -17,8 +18,15 @@ export const LoginProcess = async (req: Request, res: Response) => {
   try {
     const client = MySqlInstance.getInstance();
 
-    const encodedEmail = createHash('sha256').update(email).digest('base64');
+    const cipher = createCipheriv('aes-256-cbc', globalConfig.aesSecretKey, globalConfig.aesInitialVector);
+    const decipher = createDecipheriv('aes-256-cbc', globalConfig.aesSecretKey, globalConfig.aesInitialVector);
+
+    const encodedEmail = cipher.update(email, 'utf8', 'base64') + cipher.final('base64');
+    const decodedEmail = decipher.update(encodedEmail, 'base64', 'utf8') + decipher.final('utf8');
+
     const encodedPassword = createHash('sha256').update(password).digest('base64');
+
+    console.log('Email Encoded: %o', { email, encodedEmail, decodedEmail, encodedPassword });
 
     const queryString = `
         SELECT
