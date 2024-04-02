@@ -25,7 +25,7 @@ export const LoginProcess = async (req: Request, res: Response) => {
         WHERE
             user_email = ${escape(encodedEmail)} AND 
             user_password = ${escape(encodedPassword)} AND
-            user_type = 10
+            user_type = '10'
     `;
 
     const result = await client.query<Array<UserInfo>>(queryString);
