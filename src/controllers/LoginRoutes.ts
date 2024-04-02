@@ -15,7 +15,8 @@ export const LoginProcess = async (req: Request, res: Response) => {
     const encodedEmail = encryptString(email);
     const encodedPassword = encryptPassword(password);
 
-    const queryString = `
+    // Array 탈취
+    const [result] = await client.query<Array<UserInfo>>(`
       SELECT
           user_id
       FROM
@@ -24,10 +25,7 @@ export const LoginProcess = async (req: Request, res: Response) => {
           user_email = ${escape(encodedEmail)} AND 
           user_password = ${escape(encodedPassword)} AND
           user_status = 10
-    `;
-
-    // Array 탈취
-    const [result] = await client.query<Array<UserInfo>>(queryString);
+    `);
 
     if (!result) return res.status(400).json({ message: 'No User Found' });
 
