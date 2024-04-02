@@ -15,7 +15,7 @@ export const LoginProcess = async (req: Request, res: Response) => {
     const encodedEmail = encryptString(email);
     const encodedPassword = encryptPassword(password);
 
-    const result = await client.query<UserInfo>(`
+    const [result] = await client.query<Array<UserInfo>>(`
       SELECT
           u.user_id
       FROM
@@ -29,7 +29,7 @@ export const LoginProcess = async (req: Request, res: Response) => {
     // 유저 정보 찾기
     if (!result) return res.status(400).json({ message: 'No User Found' });
 
-    const sessionResult = await client.query<UserSession>(`
+    const [sessionResult] = await client.query<Array<UserSession>>(`
       SELECT
         session_id
       FROM

@@ -91,11 +91,9 @@ export class MySqlInstance {
 
   public async stop() {
     try {
-      const result = await this.client.end();
+      await this.client.end();
 
       console.log('Disconnect Success');
-
-      return result;
     } catch (error) {
       console.log('Disconnect Error: %o', { error });
 
