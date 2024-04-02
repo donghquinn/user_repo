@@ -41,7 +41,7 @@ export const LoginProcess = async (req: Request, res: Response) => {
           user_id = VALUES(user_id)
     `);
 
-    if (!inserResult) return res.status(401).json({ message: 'User Data Session Insert Error' });
+    if (inserResult instanceof Error) return res.status(401).json({ message: 'User Data Session Insert Error' });
 
     return res.status(200).json({ sessionId: encryptString(sessionId) });
   } catch (err) {
