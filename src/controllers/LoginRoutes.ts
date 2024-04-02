@@ -1,7 +1,8 @@
+import { encryptPassword, encryptString } from '@libraries/Crypto';
 import { MySqlInstance } from '@libraries/Database';
 import { Request, Response } from 'express';
 import { escape } from 'mysql2';
-import { createHash, randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import { UserInfo } from 'types/user.type';
 
 interface RequestBody {
@@ -12,23 +13,23 @@ interface RequestBody {
 export const LoginProcess = async (req: Request, res: Response) => {
   const { email, password } = req.body as RequestBody;
 
-  console.log('Email, Password: %o', { email, password });
-
   try {
     const client = MySqlInstance.getInstance();
 
-    const encodedEmail = createHash('sha256').update(email).digest('base64');
-    const encodedPassword = createHash('sha256').update(password).digest('base64');
+    const encodedEmail = encryptString(email);
+    const encodedPassword = encryptPassword(password);
 
     const queryString = `
-        SELECT
-            user_id, user_email FROM user_table
-        WHERE
-            user_email = ${escape(encodedEmail)} AND 
-            user_password = ${escape(encodedPassword)}
-        `;
+      SELECT
+          user_id FROM user_table
+      WHERE
+          user_email = ${escape(encodedEmail)} AND 
+          user_password = ${escape(encodedPassword)} AND
+          user_status = 10
+    `;
 
-    const result = await client.query<Array<UserInfo>>(queryString);
+    // Array 탈취
+    const [result] = await client.query<Array<UserInfo>>(queryString);
 
     if (!result) return res.status(400).json({ message: 'No User Found' });
 
@@ -36,15 +37,15 @@ export const LoginProcess = async (req: Request, res: Response) => {
 
     const inserResult = await client.query(`
         INSERT INTO user_table_session (session_id, user_id)
-        VALUES (${escape(sessionId)}, ${escape(result[0].user_id)})
+        VALUES (${escape(sessionId)}, ${escape(result.user_id)})
         ON DUPLICATE KEY UPDATE
           session_id = VALUES(session_id),
           user_id = VALUES(user_id)
-      `);
+    `);
 
     if (!inserResult) return res.status(401).json({ message: 'User Data Session Insert Error' });
 
-    res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 60 * 1000 * 10 });
+    // res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 60 * 1000 * 10 });
     return res.status(200).json({ sessionId });
 
     // return result;

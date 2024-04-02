@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
+import { encryptPassword, encryptString } from '@libraries/Crypto';
 import { MySqlInstance } from '@libraries/Database';
-import { createHash, randomUUID } from 'crypto';
+import { randomUUID } from 'crypto';
 import { escape } from 'mysql2';
 import { UserInfo } from 'types/user.type';
 
@@ -15,16 +16,16 @@ describe('Check DB Connection and Query Data', () => {
 
   test('CREATE USER TABLE', async () => {
     const userResult = await mysql.query(`
-            CREATE TABLE IF NOT EXISTS user_table (
-                user_id         VARCHAR(150)     NOT NULL      PRIMARY KEY,
-                user_name       VARCHAR(150)     NULL,
-                user_email      VARCHAR(150)     NOT NULL      UNIQUE,
-                user_password   VARCHAR(200)     NOT NULL,
-                user_status     CHAR(2)          NOT NULL      DEFAULT '10',
-                user_type       TINYINT(1)       NOT NULL      DEFAULT 1,
-                reg_date        DATETIME         NOT NULL      DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
+        CREATE TABLE IF NOT EXISTS user_table (
+            user_id         VARCHAR(150)     NOT NULL      PRIMARY KEY,
+            user_name       VARCHAR(150)     NULL,
+            user_email      VARCHAR(150)     NOT NULL      UNIQUE,
+            user_password   VARCHAR(200)     NOT NULL,
+            user_status     CHAR(2)          NOT NULL      DEFAULT '10' COMMENT '10: 활성유저, 20: 휴면 유저, 30: 회원 탈퇴',
+            user_type       TINYINT(1)       NOT NULL      DEFAULT 1    COMMENT '1: 일반 유저, 2: 관리자 유저',
+            reg_date        DATETIME         NOT NULL      DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
 
     expect(userResult).toBeDefined();
   });
@@ -47,9 +48,9 @@ describe('Check DB Connection and Query Data', () => {
 describe('Insert DataBase', () => {
   const mysql = MySqlInstance.getInstance();
 
-  const encodedEmail = createHash('sha256').update('test@example.com').digest('base64');
-  const encodedPassword = createHash('sha256').update('1234').digest('base64');
-  const encodedName = createHash('sha256').update('test').digest('base64');
+  const encodedEmail = encryptString('test1@exampel.com');
+  const encodedName = encryptString('test1');
+  const encodedPassword = encryptPassword('1234');
 
   const userId = randomUUID();
 
@@ -66,8 +67,6 @@ describe('Insert DataBase', () => {
     `);
 
     const result = await mysql.query('SELECT COUNT(1) FROM user_table ');
-
-    console.log('Count Result: %o', { count: result });
 
     expect(result).toBeDefined();
   });

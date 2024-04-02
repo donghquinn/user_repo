@@ -1,5 +1,6 @@
+import { encryptPassword, encryptString } from '@libraries/Crypto';
 import { MySqlInstance } from '@libraries/Database';
-import { createHash, randomUUID } from 'crypto';
+import { randomUUID } from 'crypto';
 import { Request, Response } from 'express';
 import { escape } from 'mysql2';
 
@@ -18,9 +19,9 @@ export const SignupRoute = async (req: Request, res: Response) => {
   try {
     const mysql = MySqlInstance.getInstance();
 
-    const encodedEmail = createHash('sha256').update(email).digest('base64');
-    const encodedPassword = createHash('sha256').update(password).digest('base64');
-    const encodedName = createHash('sha256').update(name).digest('base64');
+    const encodedEmail = encryptString(email);
+    const encodedName = encryptString(name);
+    const encodedPassword = encryptPassword(password);
 
     const queryString = `
         SELECT COUNT(1) as count FROM user_table WHERE user_email = ${escape(encodedEmail)}
@@ -31,14 +32,14 @@ export const SignupRoute = async (req: Request, res: Response) => {
     console.log('Count Result: %o', { result });
 
     if (result[0].count !== '0') return res.status(400).json({ message: 'Already Got Users' });
+
     const userId = randomUUID();
 
     const insertString = `
         INSERT INTO user_table (user_id, user_name, user_email, user_password)
-        VALUES (
-            ${escape(userId)}, ${escape(encodedName)}, ${escape(encodedEmail)}, ${escape(encodedPassword)}
-        )
-      `;
+        VALUES
+        ( ${escape(userId)}, ${escape(encodedName)}, ${escape(encodedEmail)}, ${escape(encodedPassword)} )
+    `;
 
     const insertResult = await mysql.query(insertString);
 

@@ -10,3 +10,8 @@ export const dbConnectConfig = {
   supportBigNumbers: true,
   bigNumberStrings: true,
 };
+
+export const globalConfig = {
+  aesSecretKey: process.env.AES_SECRET!,
+  aesInitialVector: process.env.AES_IV!,
+};
