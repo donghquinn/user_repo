@@ -1,5 +1,3 @@
-DELIMITER //
-
 CREATE EVENT IF NOT EXISTS session_cleanup
 ON SCHEDULE EVERY 10 MINUTE
 DO
@@ -10,8 +8,6 @@ BEGIN
     UPDATE user_table_session
     SET expire_date = NOW()
     WHERE expire_date IS NULL AND reg_date <= cutoff_time;
-END//
-
-DELIMITER ;
+END;
 
 SET GLOBAL event_scheduler = ON;

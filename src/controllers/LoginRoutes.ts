@@ -4,7 +4,7 @@ import { Request, Response } from 'express';
 import { escape } from 'mysql2';
 import { randomUUID } from 'node:crypto';
 import { RequestBody } from 'types/login.type';
-import { UserInfo } from 'types/user.type';
+import { UserInfo, UserSession } from 'types/user.type';
 
 const client = MySqlInstance.getInstance();
 
@@ -15,30 +15,40 @@ export const LoginProcess = async (req: Request, res: Response) => {
     const encodedEmail = encryptString(email);
     const encodedPassword = encryptPassword(password);
 
-    // Array 탈취
-    const [result] = await client.query<Array<UserInfo>>(`
+    const result = await client.query<UserInfo>(`
       SELECT
-          user_id
+          u.user_id
       FROM
-          user_table
+          user_table u
       WHERE
-          user_email = ${escape(encodedEmail)} AND 
-          user_password = ${escape(encodedPassword)} AND
-          user_status = 10
+          u.user_email = ${escape(encodedEmail)} AND 
+          u.user_password = ${escape(encodedPassword)} AND
+          u.user_status = 10
     `);
 
+    // 유저 정보 찾기
     if (!result) return res.status(400).json({ message: 'No User Found' });
+
+    const sessionResult = await client.query<UserSession>(`
+      SELECT
+        session_id
+      FROM
+        user_table_session
+      WHERE
+        user_id = ${escape(result.user_id)}
+    `);
+
+    // 세션 정보가 있으면 에러 리턴
+    if (sessionResult) return res.status(401).json({ message: 'Already Logined User' });
 
     const sessionId = randomUUID();
 
     const inserResult = await client.query(`
         INSERT INTO user_table_session (session_id, user_id)
         VALUES (${escape(sessionId)}, ${escape(result.user_id)})
-        ON DUPLICATE KEY UPDATE
-          session_id = VALUES(session_id),
-          user_id = VALUES(user_id)
     `);
 
+    // 데이터 입력시에 에러
     if (inserResult instanceof Error) return res.status(401).json({ message: 'User Data Session Insert Error' });
 
     return res.status(200).json({ sessionId: encryptString(sessionId) });
