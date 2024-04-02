@@ -31,4 +31,7 @@
     MARIADB_PASSWORD=
     MARIADB_PORT=
     MARIADB_DATABASE=
+
+    AES_SECRET=32바이트
+    AES_IV=16바이트
 ```
