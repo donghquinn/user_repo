@@ -24,7 +24,8 @@ export const LoginProcess = async (req: Request, res: Response) => {
             user_id, user_email FROM user_table
         WHERE
             user_email = ${escape(encodedEmail)} AND 
-            user_password = ${escape(encodedPassword)}
+            user_password = ${escape(encodedPassword)} AND
+            user_type = 10
     `;
 
     const result = await client.query<Array<UserInfo>>(queryString);
@@ -43,7 +44,7 @@ export const LoginProcess = async (req: Request, res: Response) => {
 
     if (!inserResult) return res.status(401).json({ message: 'User Data Session Insert Error' });
 
-    res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 60 * 1000 * 10 });
+    // res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 60 * 1000 * 10 });
     return res.status(200).json({ sessionId });
 
     // return result;
