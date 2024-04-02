@@ -19,8 +19,20 @@ app.get('/', (req: Request, res: Response) => {
 
 const port = globalConfig.appPort;
 
-app.set('port', port);
+// const sessionStore = new MySQLStore(sessionConfig);
 
+app.set('port', port);
+// app.use(
+//   session({
+//     secret: process.env.SECRET_KEY!,
+//     resave: false,
+//     saveUninitialized: true,
+//     store: new MySQLStore(sessionConfig),
+//     cookie: {
+//       maxAge: 1000 * 60,
+//     },
+//   }),
+// );
 app.use(cors({ preflightContinue: false }));
 app.use(json());
 app.use(helmet());
