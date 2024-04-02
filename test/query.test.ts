@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
-import { globalConfig } from '@configs/ServerConfig';
+import { encryptPassword, encryptString } from '@libraries/Crypto';
 import { MySqlInstance } from '@libraries/Database';
-import { createCipheriv, createHash, randomUUID } from 'crypto';
+import { randomUUID } from 'crypto';
 import { escape } from 'mysql2';
 import { UserInfo } from 'types/user.type';
 
@@ -47,11 +47,10 @@ describe('Check DB Connection and Query Data', () => {
 
 describe('Insert DataBase', () => {
   const mysql = MySqlInstance.getInstance();
-  const cipher = createCipheriv('aes-256-cbc', globalConfig.aesSecretKey, globalConfig.aesInitialVector);
 
-  const encodedEmail = cipher.update('test1@example.com', 'utf8', 'base64') + cipher.final('base64');
-  const encodedName = cipher.update('test1', 'utf8', 'base64') + cipher.final('base64');
-  const encodedPassword = createHash('sha256').update('1234').digest('base64');
+  const encodedEmail = encryptString('test1@exampel.com');
+  const encodedName = encryptString('test1');
+  const encodedPassword = encryptPassword('1234');
 
   const userId = randomUUID();
 

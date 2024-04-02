@@ -1,8 +1,8 @@
-import { globalConfig } from '@configs/ServerConfig';
+import { encryptPassword, encryptString } from '@libraries/Crypto';
 import { MySqlInstance } from '@libraries/Database';
 import { Request, Response } from 'express';
 import { escape } from 'mysql2';
-import { createCipheriv, createDecipheriv, createHash, randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 import { UserInfo } from 'types/user.type';
 
 interface RequestBody {
@@ -16,15 +16,8 @@ export const LoginProcess = async (req: Request, res: Response) => {
   try {
     const client = MySqlInstance.getInstance();
 
-    const cipher = createCipheriv('aes-256-cbc', globalConfig.aesSecretKey, globalConfig.aesInitialVector);
-    const decipher = createDecipheriv('aes-256-cbc', globalConfig.aesSecretKey, globalConfig.aesInitialVector);
-
-    const encodedEmail = cipher.update(email, 'utf8', 'base64') + cipher.final('base64');
-    const decodedEmail = decipher.update(encodedEmail, 'base64', 'utf8') + decipher.final('utf8');
-
-    const encodedPassword = createHash('sha256').update(password).digest('base64');
-
-    console.log('Email Encoded: %o', { email, encodedEmail, decodedEmail, encodedPassword });
+    const encodedEmail = encryptString(email);
+    const encodedPassword = encryptPassword(password);
 
     const queryString = `
         SELECT
@@ -32,7 +25,7 @@ export const LoginProcess = async (req: Request, res: Response) => {
         WHERE
             user_email = ${escape(encodedEmail)} AND 
             user_password = ${escape(encodedPassword)}
-        `;
+    `;
 
     const result = await client.query<Array<UserInfo>>(queryString);
 
@@ -46,7 +39,7 @@ export const LoginProcess = async (req: Request, res: Response) => {
         ON DUPLICATE KEY UPDATE
           session_id = VALUES(session_id),
           user_id = VALUES(user_id)
-      `);
+    `);
 
     if (!inserResult) return res.status(401).json({ message: 'User Data Session Insert Error' });
 

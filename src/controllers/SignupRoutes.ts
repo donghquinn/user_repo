@@ -1,6 +1,6 @@
-import { globalConfig } from '@configs/ServerConfig';
+import { encryptPassword, encryptString } from '@libraries/Crypto';
 import { MySqlInstance } from '@libraries/Database';
-import { createCipheriv, createHash, randomUUID } from 'crypto';
+import { randomUUID } from 'crypto';
 import { Request, Response } from 'express';
 import { escape } from 'mysql2';
 
@@ -18,11 +18,10 @@ export const SignupRoute = async (req: Request, res: Response) => {
   const { email, password, name } = req.body as SignupRequest;
   try {
     const mysql = MySqlInstance.getInstance();
-    const cipher = createCipheriv('aes-256-cbc', globalConfig.aesSecretKey, globalConfig.aesInitialVector);
 
-    const encodedEmail = cipher.update(email, 'utf8', 'base64') + cipher.final('base64');
-    const encodedName = cipher.update(name, 'utf8', 'base64') + cipher.final('base64');
-    const encodedPassword = createHash('sha256').update(password).digest('base64');
+    const encodedEmail = encryptString(email);
+    const encodedName = encryptString(name);
+    const encodedPassword = encryptPassword(password);
 
     const queryString = `
         SELECT COUNT(1) as count FROM user_table WHERE user_email = ${escape(encodedEmail)}
