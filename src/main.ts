@@ -24,7 +24,7 @@ const port = globalConfig.appPort;
 app.set('port', port);
 // app.use(
 //   session({
-//     secret: process.env.SECRET_KEY!,
+//     secret: globalConfig.secretKey,
 //     resave: false,
 //     saveUninitialized: true,
 //     store: new MySQLStore(sessionConfig),
