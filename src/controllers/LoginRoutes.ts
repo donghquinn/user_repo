@@ -3,25 +3,23 @@ import { MySqlInstance } from '@libraries/Database';
 import { Request, Response } from 'express';
 import { escape } from 'mysql2';
 import { randomUUID } from 'node:crypto';
+import { RequestBody } from 'types/login.type';
 import { UserInfo } from 'types/user.type';
 
-interface RequestBody {
-  email: string;
-  password: string;
-}
+const client = MySqlInstance.getInstance();
 
 export const LoginProcess = async (req: Request, res: Response) => {
   const { email, password } = req.body as RequestBody;
 
   try {
-    const client = MySqlInstance.getInstance();
-
     const encodedEmail = encryptString(email);
     const encodedPassword = encryptPassword(password);
 
     const queryString = `
       SELECT
-          user_id FROM user_table
+          user_id
+      FROM
+          user_table
       WHERE
           user_email = ${escape(encodedEmail)} AND 
           user_password = ${escape(encodedPassword)} AND
@@ -45,10 +43,7 @@ export const LoginProcess = async (req: Request, res: Response) => {
 
     if (!inserResult) return res.status(401).json({ message: 'User Data Session Insert Error' });
 
-    // res.cookie('sessionId', sessionId, { httpOnly: true, maxAge: 60 * 1000 * 10 });
-    return res.status(200).json({ sessionId });
-
-    // return result;
+    return res.status(200).json({ sessionId: encryptString(sessionId) });
   } catch (err) {
     return res.status(500).json({ error: err });
   }

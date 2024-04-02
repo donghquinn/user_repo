@@ -3,22 +3,13 @@ import { MySqlInstance } from '@libraries/Database';
 import { randomUUID } from 'crypto';
 import { Request, Response } from 'express';
 import { escape } from 'mysql2';
+import { SignupRequest, UserCountResult } from 'types/signup.type';
 
-interface SignupRequest {
-  email: string;
-  password: string;
-  name: string;
-}
-
-interface UserCountResult {
-  count: string;
-}
+const mysql = MySqlInstance.getInstance();
 
 export const SignupRoute = async (req: Request, res: Response) => {
   const { email, password, name } = req.body as SignupRequest;
   try {
-    const mysql = MySqlInstance.getInstance();
-
     const encodedEmail = encryptString(email);
     const encodedName = encryptString(name);
     const encodedPassword = encryptPassword(password);
