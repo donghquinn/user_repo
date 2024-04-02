@@ -18,11 +18,9 @@ export const SignupRoute = async (req: Request, res: Response) => {
         SELECT COUNT(1) as count FROM user_table WHERE user_email = ${escape(encodedEmail)}
       `;
 
-    const result = await mysql.query<Array<UserCountResult>>(queryString);
+    const [result] = await mysql.query<Array<UserCountResult>>(queryString);
 
-    console.log('Count Result: %o', { result });
-
-    if (result[0].count !== '0') return res.status(400).json({ message: 'Already Got Users' });
+    if (result.count !== '0') return res.status(400).json({ message: 'Already Got Users' });
 
     const userId = randomUUID();
 
@@ -34,13 +32,10 @@ export const SignupRoute = async (req: Request, res: Response) => {
 
     const insertResult = await mysql.query(insertString);
 
-    console.log('Insert Finished');
-
-    if (!insertResult) return res.status(401).json({ message: 'User Insert Error' });
+    if (insertResult instanceof Error) return res.status(401).json({ message: 'User Insert Error' });
 
     return res.status(200).json({ message: 'success' });
   } catch (error) {
-    console.log('Error: %o', { error });
     return res.status(500).json({ error });
   }
 };
