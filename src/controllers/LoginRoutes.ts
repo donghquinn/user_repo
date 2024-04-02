@@ -20,15 +20,16 @@ export const LoginProcess = async (req: Request, res: Response) => {
     const encodedPassword = encryptPassword(password);
 
     const queryString = `
-        SELECT
-            user_id, user_email FROM user_table
-        WHERE
-            user_email = ${escape(encodedEmail)} AND 
-            user_password = ${escape(encodedPassword)} AND
-            user_type = '10'
+      SELECT
+          user_id FROM user_table
+      WHERE
+          user_email = ${escape(encodedEmail)} AND 
+          user_password = ${escape(encodedPassword)} AND
+          user_status = 10
     `;
 
-    const result = await client.query<Array<UserInfo>>(queryString);
+    // Array 탈취
+    const [result] = await client.query<Array<UserInfo>>(queryString);
 
     if (!result) return res.status(400).json({ message: 'No User Found' });
 
@@ -36,7 +37,7 @@ export const LoginProcess = async (req: Request, res: Response) => {
 
     const inserResult = await client.query(`
         INSERT INTO user_table_session (session_id, user_id)
-        VALUES (${escape(sessionId)}, ${escape(result[0].user_id)})
+        VALUES (${escape(sessionId)}, ${escape(result.user_id)})
         ON DUPLICATE KEY UPDATE
           session_id = VALUES(session_id),
           user_id = VALUES(user_id)

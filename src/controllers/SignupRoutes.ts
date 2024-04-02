@@ -39,7 +39,7 @@ export const SignupRoute = async (req: Request, res: Response) => {
         INSERT INTO user_table (user_id, user_name, user_email, user_password)
         VALUES
         ( ${escape(userId)}, ${escape(encodedName)}, ${escape(encodedEmail)}, ${escape(encodedPassword)} )
-      `;
+    `;
 
     const insertResult = await mysql.query(insertString);
 
