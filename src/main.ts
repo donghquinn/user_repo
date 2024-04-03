@@ -1,12 +1,10 @@
 import { globalConfig } from '@configs/ServerConfig';
 import { MySqlInstance } from '@libraries/Database';
-import loginRouter from '@routers/login.route';
-import signupRouter from '@routers/signup.route';
-import dataRoute from '@routers/user.route';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Request, Response, json, urlencoded } from 'express';
 import helmet from 'helmet';
+import userDefaultRouter from './routes';
 
 const mysql = MySqlInstance.getInstance();
 
@@ -20,20 +18,8 @@ app.get('/', (req: Request, res: Response) => {
 
 const port = globalConfig.appPort;
 
-// const sessionStore = new MySQLStore(sessionConfig);
-
 app.set('port', port);
-// app.use(
-//   session({
-//     secret: globalConfig.secretKey,
-//     resave: false,
-//     saveUninitialized: true,
-//     store: new MySQLStore(sessionConfig),
-//     cookie: {
-//       maxAge: 1000 * 60,
-//     },
-//   }),
-// );
+
 app.use(cors({ preflightContinue: false, allowedHeaders: ['Authorization', 'Content-Type'] }));
 app.use(json());
 app.use(helmet());
@@ -41,9 +27,7 @@ app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
 // app.use(bodyParser());
 
-app.use('/', dataRoute);
-app.use('/', loginRouter);
-app.use('/', signupRouter);
+app.use('/api/user', userDefaultRouter);
 
 app.listen(port, () => {
   console.log(`Listening On ${port}`);
