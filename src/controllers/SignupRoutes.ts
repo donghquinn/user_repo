@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+import { globalConfig } from '@configs/ServerConfig';
 import { encryptPassword, encryptString } from '@libraries/Crypto';
 import { MySqlInstance } from '@libraries/Database';
 import { randomUUID } from 'crypto';
@@ -8,7 +10,7 @@ import { SignupRequest, UserCountResult } from 'types/signup.type';
 const mysql = MySqlInstance.getInstance();
 
 export const SignupRoute = async (req: Request, res: Response) => {
-  const { email, password, name } = req.body as SignupRequest;
+  const { email, password, name, adminCode } = req.body as SignupRequest;
   try {
     const encodedEmail = encryptString(email);
     const encodedName = encryptString(name);
@@ -24,10 +26,12 @@ export const SignupRoute = async (req: Request, res: Response) => {
 
     const userId = randomUUID();
 
+    const userType = adminCode === globalConfig.adminCode ? 'ADMIN' : 'NORM';
+
     const insertString = `
-        INSERT INTO user_table (user_id, user_name, user_email, user_password)
+        INSERT INTO user_table (user_id, user_name, user_email, user_password, user_type)
         VALUES
-        ( ${escape(userId)}, ${escape(encodedName)}, ${escape(encodedEmail)}, ${escape(encodedPassword)} )
+        ( ${escape(userId)}, ${escape(encodedName)}, ${escape(encodedEmail)}, ${escape(encodedPassword)}, ${escape(userType)} )
     `;
 
     const insertResult = await mysql.query(insertString);
