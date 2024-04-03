@@ -1,5 +1,6 @@
 import { encryptPassword, encryptString } from '@libraries/Crypto';
 import { MySqlInstance } from '@libraries/Database';
+import { jwtSign } from 'auth/auth';
 import { Request, Response } from 'express';
 import { escape } from 'mysql2';
 import { randomUUID } from 'node:crypto';
@@ -51,7 +52,9 @@ export const LoginProcess = async (req: Request, res: Response) => {
     // 데이터 입력시에 에러
     if (inserResult instanceof Error) return res.status(401).json({ message: 'User Data Session Insert Error' });
 
-    return res.status(200).json({ sessionId: encryptString(sessionId) });
+    const token = jwtSign(result.user_id, sessionId, '10m');
+
+    return res.status(200).json({ token });
   } catch (err) {
     return res.status(500).json({ error: err });
   }
