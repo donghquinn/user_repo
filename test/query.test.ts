@@ -60,6 +60,11 @@ describe('Insert DataBase', () => {
           user_table (user_id, user_email, user_name, user_password)
         VALUES
           (${escape(userId)}, ${escape(encodedEmail)}, ${escape(encodedName)}, ${escape(encodedPassword)})
+        ON DUPLICATE KEY UPDATE
+          user_id = VALUES(user_id),
+          user_email = VALUES(user_email),
+          user_name = VALUES(user_name), 
+          user_password = VALUES(user_password)
     `);
 
     const [result] = await mysql.query<Array<{ count: string }>>(
@@ -79,18 +84,19 @@ describe('Insert DataBase', () => {
 
   test('Test Select User Info', async () => {
     const [result] = await mysql.query<Array<UserInfo>>(`
-            SELECT
-              user_id
-            FROM 
-              user_table
-            WHERE
-              user_email = ${escape(encodedEmail)} AND 
-              user_password = ${escape(encodedPassword)} AND
-              user_status = 10
-        `);
+        SELECT
+          user_id
+        FROM 
+          user_table
+        WHERE
+          user_email = ${escape(encodedEmail)} AND 
+          user_password = ${escape(encodedPassword)} AND
+          user_status = 10
+    `);
 
     expect(result.user_id).toBe(userId);
   });
+
   afterAll(async () => {
     await mysql.stop();
   });
