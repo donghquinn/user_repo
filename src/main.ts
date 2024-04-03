@@ -33,7 +33,7 @@ app.set('port', port);
 //     },
 //   }),
 // );
-app.use(cors({ preflightContinue: false }));
+app.use(cors({ preflightContinue: false, allowedHeaders: ['Authorization', 'Content-Type'] }));
 app.use(json());
 app.use(helmet());
 app.use(urlencoded({ extended: true }));
