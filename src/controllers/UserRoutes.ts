@@ -7,7 +7,7 @@ import { JwtToken } from 'types/auth.type';
 import { UserTableData } from '../types/user.type';
 
 export const UserDataRouter = async (req: Request, res: Response) => {
-  const token = req.headers.authorization;
+  const token = req.headers.authorization?.split('Bearer ')[1];
 
   if (token === undefined) return res.status(500).json({ message: 'JWT Token is not Valid' });
 
@@ -26,16 +26,18 @@ export const UserDataRouter = async (req: Request, res: Response) => {
           user_type = ${escape(userType)}
     `);
 
+    if (result instanceof Error) return res.status(404).json({ message: 'No User Data Result' });
+
     const isAdmin = userType === 'ADMIN';
+
+    const { user_email: userEmail, user_name: userName } = result;
 
     const userDataValue = {
       userId,
       isAdmin,
-      userEmail: decryptString(result.user_email),
-      userName: decryptString(result.user_name),
+      userEmail: decryptString(userEmail),
+      userName: decryptString(userName),
     };
-
-    if (result instanceof Error) return res.status(404).json({ message: 'No User Data Result' });
 
     return res.status(200).json({ userData: userDataValue, token: jwtRefresh(token, '10m') });
   } catch (error) {

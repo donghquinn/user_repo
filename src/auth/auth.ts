@@ -34,12 +34,12 @@ export const jwtValid = (token: string): JwtToken => {
 
 export const jwtRefresh = (token: string, expire: string) => {
   try {
-    const decoded = jwtValid(token);
+    const { userId, userType, sessionId } = jwtValid(token);
 
     const newPayload: JwtToken = {
-      userId: decoded.userId,
-      userType: decoded.userType,
-      sessionId: decoded.sessionId,
+      userId,
+      userType,
+      sessionId,
     };
 
     return jwt.sign(newPayload, globalConfig.jwtKey, { algorithm: 'HS256', expiresIn: expire });

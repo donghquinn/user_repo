@@ -30,13 +30,15 @@ export const LoginProcess = async (req: Request, res: Response) => {
     // 유저 정보 찾기
     if (!result) return res.status(400).json({ message: 'No User Found' });
 
+    const { user_id: userId, user_type: userType } = result;
+
     const [sessionResult] = await client.query<Array<UserSession>>(`
       SELECT
         session_id
       FROM
         user_table_session
       WHERE
-        user_id = ${escape(result.user_id)}
+        user_id = ${escape(userId)}
     `);
 
     // 세션 정보가 있으면 에러 리턴
@@ -46,13 +48,13 @@ export const LoginProcess = async (req: Request, res: Response) => {
 
     const inserResult = await client.query(`
         INSERT INTO user_table_session (session_id, user_id)
-        VALUES (${escape(sessionId)}, ${escape(result.user_id)})
+        VALUES (${escape(sessionId)}, ${escape(userId)})
     `);
 
     // 데이터 입력시에 에러
     if (inserResult instanceof Error) return res.status(401).json({ message: 'User Data Session Insert Error' });
 
-    const token = jwtSign(result.user_id, result.user_type, sessionId, '10m');
+    const token = jwtSign(userId, userType, sessionId, '10m');
 
     return res.status(200).json({ token });
   } catch (err) {

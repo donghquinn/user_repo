@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { jwtValid } from 'auth/auth';
 import { NextFunction, Response, Request } from 'express';
 
@@ -7,16 +8,15 @@ export const jwtAuthMiddleware = (request: Request, response: Response, next: Ne
   try {
     if (token === undefined) return response.status(500).json({ error: 'JWT Token is not included' });
 
-    const decoded = jwtValid(token);
+    const { userId, userType } = jwtValid(token);
 
-    console.log('Decoded JWT: %o', { decoded });
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    request.body.userId = decoded.userId;
+    request.body.userId = userId;
+    request.body.userType = userType;
 
     return next();
   } catch (error) {
     console.log('JWT Middleware Error: %o', { error });
+
     throw new Error('JWT Middleware Error');
   }
 };
