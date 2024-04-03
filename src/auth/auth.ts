@@ -1,10 +1,10 @@
 import { globalConfig } from '@configs/ServerConfig';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { JwtToken } from 'types/auth.type';
 
 export const jwtSign = (userId: string, userType: string, sessionId: string, expire: string) => {
   try {
-    const payloadObj: JwtToken = {
+    const payloadObj: JwtPayload = {
       userId,
       userType,
       sessionId,
@@ -30,11 +30,16 @@ export const jwtValid = (token: string): JwtToken => {
   }
 };
 
+// TODO 만료 시점 체크 해서 갱신하기
 export const jwtRefresh = (token: string, expire: string) => {
   try {
-    const { userId, userType, sessionId } = jwtValid(token);
+    const { userId, userType, sessionId, iat, exp } = jwtValid(token);
 
-    const newPayload: JwtToken = {
+    // 초
+    const remaining = exp - iat;
+
+    console.log('Reaming: %o', { remaining });
+    const newPayload: JwtPayload = {
       userId,
       userType,
       sessionId,

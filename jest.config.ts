@@ -7,6 +7,7 @@ const config: JestConfigWithTsJest = {
   testEnvironment: 'node',
   verbose: true,
   moduleNameMapper: {
+    '^@auth/(.*)$': 'auth/$1',
     '^@configs/(.*)$': 'configs/$1',
     '^@dao/(.*)$': 'dao/$1',
     '^@errors/(.*)$': 'errors/$1',

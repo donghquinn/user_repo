@@ -19,6 +19,7 @@
     "esModuleInterop": true,
     "baseUrl": "src",
     "paths": {
+      "@auth/*":["auth/*"],
       "@configs/*": ["configs/*"],
       "@dao/*": ["dao/*"],
       "@routers/*":["routes/*"],
