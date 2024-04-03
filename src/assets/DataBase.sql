@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS user_table (
     user_email      VARCHAR(150)     NOT NULL      UNIQUE,
     user_password   VARCHAR(200)     NOT NULL,
     user_status     CHAR(2)          NOT NULL      DEFAULT '10' COMMENT '10: 활성유저, 20: 휴면 유저, 30: 회원 탈퇴',
-    user_type       TINYINT(1)       NOT NULL      DEFAULT 1    COMMENT '1: 일반 유저, 2: 관리자 유저',
+    user_type       ENUM("NORM", "ADMIN")       NOT NULL      DEFAULT "NORM"    COMMENT '1: 일반 유저, 2: 관리자 유저',
     reg_date        DATETIME         NOT NULL      DEFAULT CURRENT_TIMESTAMP
 );
 

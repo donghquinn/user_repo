@@ -16,4 +16,5 @@ export const globalConfig = {
   aesSecretKey: process.env.AES_SECRET!,
   aesInitialVector: process.env.AES_IV!,
   jwtKey: process.env.JWT_KEY!,
+  adminCode: process.env.ADMIN_CODE!,
 };

@@ -2,10 +2,11 @@ import { globalConfig } from '@configs/ServerConfig';
 import jwt from 'jsonwebtoken';
 import { JwtToken } from 'types/auth.type';
 
-export const jwtSign = (userId: string, sessionId: string, expire: string) => {
+export const jwtSign = (userId: string, userType: string, sessionId: string, expire: string) => {
   try {
     const payloadObj: JwtToken = {
       userId,
+      userType,
       sessionId,
     };
 
@@ -35,8 +36,9 @@ export const jwtRefresh = (token: string, expire: string) => {
   try {
     const decoded = jwtValid(token);
 
-    const newPayload = {
+    const newPayload: JwtToken = {
       userId: decoded.userId,
+      userType: decoded.userType,
       sessionId: decoded.sessionId,
     };
 

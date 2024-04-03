@@ -14,25 +14,30 @@ export const UserDataRouter = async (req: Request, res: Response) => {
   try {
     const client = MySqlInstance.getInstance();
 
-    const { userId } = req.body as JwtToken;
-
-    console.log('User ID: %o', { userId });
+    const { userId, userType } = req.body as JwtToken;
 
     const [result] = await client.query<Array<UserTableData>>(`
-        SELECT * FROM user_table WHERE user_id = ${escape(userId)}
-      `);
+        SELECT 
+          user_email, user_name
+        FROM 
+          user_table
+        WHERE
+          user_id = ${escape(userId)} AND
+          user_type = ${escape(userType)}
+    `);
+
+    const isAdmin = userType === 'ADMIN';
 
     const userDataValue = {
       userId,
+      isAdmin,
       userEmail: decryptString(result.user_email),
       userName: decryptString(result.user_name),
-      userPassword: decryptString(result.user_password),
     };
 
     if (result instanceof Error) return res.status(404).json({ message: 'No User Data Result' });
 
-    const refreshToken = jwtRefresh(token, '10m');
-    return res.status(200).json({ userData: userDataValue, token: refreshToken });
+    return res.status(200).json({ userData: userDataValue, token: jwtRefresh(token, '10m') });
   } catch (error) {
     throw new Error('Get User Data Error');
   }
