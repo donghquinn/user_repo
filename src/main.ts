@@ -2,6 +2,7 @@ import { globalConfig } from '@configs/ServerConfig';
 import { MySqlInstance } from '@libraries/Database';
 import loginRouter from '@routers/login.route';
 import signupRouter from '@routers/signup.route';
+import dataRoute from '@routers/user.route';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Request, Response, json, urlencoded } from 'express';
@@ -40,6 +41,7 @@ app.use(urlencoded({ extended: true }));
 app.use(cookieParser());
 // app.use(bodyParser());
 
+app.use('/', dataRoute);
 app.use('/', loginRouter);
 app.use('/', signupRouter);
 
