@@ -22,8 +22,6 @@ export const jwtValid = (token: string): JwtToken => {
   try {
     const decoded = jwt.verify(token, globalConfig.jwtKey);
 
-    console.log('Decoded: %o', { decoded });
-
     return decoded as JwtToken;
   } catch (error) {
     console.log('JWT Verify Error: %o', { error });
