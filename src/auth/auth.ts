@@ -30,15 +30,10 @@ export const jwtValid = (token: string): JwtToken => {
   }
 };
 
-// TODO 만료 시점 체크 해서 갱신하기
 export const jwtRefresh = (token: string, expire: string) => {
   try {
-    const { userId, userType, sessionId, iat, exp } = jwtValid(token);
+    const { userId, userType, sessionId } = jwtValid(token);
 
-    // 초
-    const remaining = exp - iat;
-
-    console.log('Reaming: %o', { remaining });
     const newPayload: JwtPayload = {
       userId,
       userType,
