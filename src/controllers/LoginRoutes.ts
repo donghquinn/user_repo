@@ -1,4 +1,4 @@
-import { encryptPassword, encryptString } from '@libraries/Crypto';
+import { comparePassword, encryptString } from '@libraries/Crypto';
 import { MySqlInstance } from '@libraries/Database';
 import { jwtSign } from 'auth/auth';
 import { Request, Response } from 'express';
@@ -14,21 +14,23 @@ export const LoginProcess = async (req: Request, res: Response) => {
 
   try {
     const encodedEmail = encryptString(email);
-    const encodedPassword = encryptPassword(password);
 
     const [result] = await client.query<Array<UserInfo>>(`
       SELECT
-          user_id, user_type
+          user_id, user_type, user_password
       FROM
           user_table
       WHERE
           user_email = ${escape(encodedEmail)} AND 
-          user_password = ${escape(encodedPassword)} AND
           user_status = 10
     `);
 
     // 유저 정보 찾기
     if (!result) return res.status(400).json({ message: 'No User Found' });
+
+    const isValidPassword = await comparePassword(password, result.user_password);
+
+    if (!isValidPassword) return res.status(401).json({ message: 'Password Is Not Correct' });
 
     const { user_id: userId, user_type: userType } = result;
 
