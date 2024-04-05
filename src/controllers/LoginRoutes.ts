@@ -1,4 +1,4 @@
-import { comparePassword, encryptString } from '@libraries/Crypto';
+import { comparePassword, decryptString, encryptString } from '@libraries/Crypto';
 import { MySqlInstance } from '@libraries/Database';
 import { jwtSign } from 'auth/auth';
 import { Request, Response } from 'express';
@@ -13,7 +13,10 @@ export const LoginProcess = async (req: Request, res: Response) => {
   const { email, password } = req.body as RequestBody;
 
   try {
-    const encodedEmail = encryptString(email);
+    const decodedEmail = decryptString(email);
+    const decodedPassword = decryptString(password);
+
+    const encodedEmail = encryptString(decodedEmail);
 
     const [result] = await client.query<Array<UserInfo>>(`
       SELECT
@@ -28,7 +31,7 @@ export const LoginProcess = async (req: Request, res: Response) => {
     // 유저 정보 찾기
     if (!result) return res.status(400).json({ message: 'No User Found' });
 
-    const isValidPassword = await comparePassword(password, result.user_password);
+    const isValidPassword = await comparePassword(decodedPassword, result.user_password);
 
     if (!isValidPassword) return res.status(401).json({ message: 'Password Is Not Correct' });
 
