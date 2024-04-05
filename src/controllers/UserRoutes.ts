@@ -1,20 +1,16 @@
 import { decryptString } from '@libraries/Crypto';
 import { MySqlInstance } from '@libraries/Database';
-import { jwtRefresh } from 'auth/auth';
 import { Request, Response } from 'express';
 import { escape } from 'mysql2';
 import { JwtToken } from 'types/auth.type';
 import { UserTableData } from '../types/user.type';
 
 export const UserDataRouter = async (req: Request, res: Response) => {
-  const token = req.headers.authorization?.split('Bearer ')[1];
-
-  if (token === undefined) return res.status(500).json({ message: 'JWT Token is not Valid' });
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+  const { userId, userType } = req.body.decoded as JwtToken;
 
   try {
     const client = MySqlInstance.getInstance();
-
-    const { userId, userType } = req.body as JwtToken;
 
     const [result] = await client.query<Array<UserTableData>>(`
         SELECT 
@@ -39,7 +35,7 @@ export const UserDataRouter = async (req: Request, res: Response) => {
       userName: decryptString(userName),
     };
 
-    return res.status(200).json({ userData: userDataValue, token: jwtRefresh(token, '10m') });
+    return res.status(200).json({ userData: userDataValue });
   } catch (error) {
     throw new Error('Get User Data Error');
   }

@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import { globalConfig } from '@configs/ServerConfig';
-import { encryptPassword, encryptString } from '@libraries/Crypto';
+import { decryptString, encryptPassword, encryptString } from '@libraries/Crypto';
 import { MySqlInstance } from '@libraries/Database';
 import { randomUUID } from 'crypto';
 import { Request, Response } from 'express';
@@ -12,9 +12,13 @@ const mysql = MySqlInstance.getInstance();
 export const SignupRoute = async (req: Request, res: Response) => {
   const { email, password, name, adminCode } = req.body as SignupRequest;
   try {
-    const encodedEmail = encryptString(email);
-    const encodedName = encryptString(name);
-    const encodedPassword = encryptPassword(password);
+    const decodedEmail = decryptString(email);
+    const decodedName = decryptString(name);
+    const decodedPassword = decryptString(password);
+
+    const encodedEmail = encryptString(decodedEmail);
+    const encodedName = encryptString(decodedName);
+    const encodedPassword = encryptPassword(decodedPassword);
 
     const queryString = `
         SELECT COUNT(1) as count FROM user_table WHERE user_email = ${escape(encodedEmail)}

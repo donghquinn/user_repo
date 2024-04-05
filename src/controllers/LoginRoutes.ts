@@ -1,4 +1,4 @@
-import { comparePassword, encryptString } from '@libraries/Crypto';
+import { comparePassword, decryptString, encryptString } from '@libraries/Crypto';
 import { MySqlInstance } from '@libraries/Database';
 import { jwtSign } from 'auth/auth';
 import { Request, Response } from 'express';
@@ -13,9 +13,12 @@ export const LoginProcess = async (req: Request, res: Response) => {
   const { email, password } = req.body as RequestBody;
 
   try {
-    const encodedEmail = encryptString(email);
+    const decodedEmail = decryptString(email);
+    const decodedPassword = decryptString(password);
 
-    const [result] = await client.query<Array<UserInfo>>(`
+    const encodedEmail = encryptString(decodedEmail);
+
+    const [userResult] = await client.query<Array<UserInfo>>(`
       SELECT
           user_id, user_type, user_password
       FROM
@@ -26,13 +29,13 @@ export const LoginProcess = async (req: Request, res: Response) => {
     `);
 
     // 유저 정보 찾기
-    if (!result) return res.status(400).json({ message: 'No User Found' });
+    if (!userResult) return res.status(400).json({ message: 'No User Found' });
 
-    const isValidPassword = await comparePassword(password, result.user_password);
+    const { user_id: dbId, user_type: userType, user_password: dbPassword } = userResult;
+
+    const isValidPassword = await comparePassword(decodedPassword, dbPassword);
 
     if (!isValidPassword) return res.status(401).json({ message: 'Password Is Not Correct' });
-
-    const { user_id: userId, user_type: userType } = result;
 
     const [sessionResult] = await client.query<Array<UserSession>>(`
       SELECT
@@ -40,7 +43,7 @@ export const LoginProcess = async (req: Request, res: Response) => {
       FROM
         user_table_session
       WHERE
-        user_id = ${escape(userId)}
+        user_id = ${escape(dbId)}
     `);
 
     // 세션 정보가 있으면 에러 리턴
@@ -50,13 +53,13 @@ export const LoginProcess = async (req: Request, res: Response) => {
 
     const inserResult = await client.query(`
         INSERT INTO user_table_session (session_id, user_id)
-        VALUES (${escape(sessionId)}, ${escape(userId)})
+        VALUES (${escape(sessionId)}, ${escape(dbId)})
     `);
 
     // 데이터 입력시에 에러
     if (inserResult instanceof Error) return res.status(401).json({ message: 'User Data Session Insert Error' });
 
-    const token = jwtSign(userId, userType, sessionId, '10m');
+    const token = jwtSign(dbId, userType, sessionId, '10m');
 
     return res.status(200).json({ token });
   } catch (err) {
