@@ -10,8 +10,7 @@ export const jwtAuthMiddleware = (request: Request, response: Response, next: Ne
 
     const { userId, userType } = jwtValid(token);
 
-    request.body.userId = userId;
-    request.body.userType = userType;
+    request.body.decoded = { userId, userType };
 
     return next();
   } catch (error) {
